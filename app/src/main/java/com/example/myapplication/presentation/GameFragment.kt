@@ -63,8 +63,12 @@ class GameFragment : Fragment() {
 
     //далее создаем метод, который конвертирует байтовый сериалайзебл в класс Level
     private fun parseArgs() {
-        //присваиваем переменной level значение из serializable
-        level = requireArguments().getSerializable(KEY_LEVEL) as Level
+        /*присваиваем переменной level значение из serializable
+        level = requireArguments().getSerializable(KEY_LEVEL) as Level*/
+        //перелываем на parcelable
+        requireArguments().getParcelable<Level>(KEY_LEVEL)?.let{
+            level = it
+        }
     }
 
     companion object {
@@ -76,7 +80,7 @@ class GameFragment : Fragment() {
         fun newInstance(level: Level): GameFragment {
             return GameFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(KEY_LEVEL, level)
+                    putParcelable(KEY_LEVEL, level)
                 }
             }
         }
