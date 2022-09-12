@@ -7,7 +7,7 @@ class GenerateQuestionUseCase(private val repository: GameRepository) {
 
     //Максимальное значение которое нужно сгенерировать, передаем в параметры
     operator fun invoke(maxSumValue: Int): Question {
-        return repository.generateQuestion((maxSumValue, COUNT_OF_OPTIONS)
+        return repository.generateQuestion(maxSumValue, COUNT_OF_OPTIONS)
 
     }
 
