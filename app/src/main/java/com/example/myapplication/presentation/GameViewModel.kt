@@ -26,14 +26,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     На вопрос -  val question: LiveData<Question>
     Также отобразим %правильных ответов, который будет отображаться в прогресс баре - val percentOfRightAnswers: LiveData<Int>
     Прогресс с ответами, строка в которой отображается какое количество правильных ответов и какое колво их должно быть мин -  val progressAnswers: LiveData<String>
-    И две лайв даты, меняющие цвет бара
-*/
+    И две лайв даты, меняющие цвет бара*/
+
     private lateinit var level: Level
     private lateinit var gameSettings: GameSettings
 
     private var timer: CountDownTimer? = null
-
     private val repository = GameRepositoryImpl
+
     //получаем context
     private val context = application
 
@@ -85,6 +85,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         getGameSettings(level)
         startTimer()
         generateQuestion()
+        updateProgress()
     }
 
     //метод отображащий прогресс
@@ -106,6 +107,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     //cоздаем метод который вычисляет прогресс ( в нем приводим одно число к типу double, иначе результатом всегда будет 0 либо 1)
     private fun calculatePercentOfRightAnswers(): Int {
+        if (countOfQuestions == 0) {
+            return 0
+        }
         return ((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()
     }
 
@@ -140,7 +144,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     //создаем метод позволяютщий отвечать на вопросы, куда будем передавать выбранный вариант ответа
-    private fun chooseAnswer(number: Int) {
+    fun chooseAnswer(number: Int) {
         checkAnswer(number)
         //обновляем прогресс после каждого ответа
         updateProgress()
