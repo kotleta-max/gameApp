@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentGameFinishedBinding
 import com.example.myapplication.domain.entity.GameResult
@@ -14,16 +16,18 @@ import java.lang.RuntimeException
 
 class GameFinishedFragment : Fragment() {
 
-    private lateinit var gameResult: GameResult
+    //private lateinit var gameResult: GameResult
+
+    private val args by navArgs<GameFinishedFragmentArgs>()
 
     private var _binding: FragmentGameFinishedBinding? = null
     private val binding: FragmentGameFinishedBinding
         get() = _binding ?: throw RuntimeException("FragmentGameFinished == null")
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parseArgs()
-    }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,14 +45,14 @@ class GameFinishedFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        /*Больше не нужно т.к. переход осуществляется через jpnavigation
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 retryGame()
             }
         }
-
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callBack)
-
+*/
         binding.buttonRetry.setOnClickListener {
             retryGame()
         }
@@ -60,15 +64,15 @@ class GameFinishedFragment : Fragment() {
             emojiResult.setImageResource(getSmileRedId())
             tvRequiredAnswers.text = String.format(
                 getString(R.string.required_score),
-                gameResult.gameSettings.minCountOfRightAnswers
+                args.gameResult.gameSettings.minCountOfRightAnswers
             )
             tvScoreAnswers.text = String.format(
                 getString(R.string.score_answers),
-                gameResult.countOfRightAnswers
+                args.gameResult.countOfRightAnswers
             )
             tvRequiredPercentage.text = String.format(
                 getString(R.string.required_percentage),
-                gameResult.gameSettings.minPercentOfRightAnswers
+                args.gameResult.gameSettings.minPercentOfRightAnswers
             )
             tvScorePercentage.text = String.format(
                 getString(R.string.score_percentage),
@@ -78,14 +82,14 @@ class GameFinishedFragment : Fragment() {
     }
 
     private fun getSmileRedId(): Int {
-        return if (gameResult.winner) {
+        return if (args.gameResult.winner) {
             R.drawable.ic_smile
         } else {
             R.drawable.ic_sad
         }
     }
 
-    private fun getPercentOfRightAnswers() = with(gameResult) {
+    private fun getPercentOfRightAnswers() = with(args.gameResult) {
         if (countOfQuestions == 0) {
             0
         } else {
@@ -98,25 +102,27 @@ class GameFinishedFragment : Fragment() {
         _binding = null
     }
 
-    private fun parseArgs() {
-        /*gameResult = requireArguments().getSerializable(KEY_GAME_RESULT) as GameResult
-        Переделываем на parcelable (если KEY_GAME_RESULT не равен null, то присвоим значение gameResult*/
+    /*private fun parseArgs() {
+        *//*gameResult = requireArguments().getSerializable(KEY_GAME_RESULT) as GameResult
+        Переделываем на parcelable (если KEY_GAME_RESULT не равен null, то присвоим значение gameResult*//*
         requireArguments().getParcelable<GameResult>(KEY_GAME_RESULT)?.let {
             gameResult = it
         }
-    }
+    }*/
 
     //создаем метод который будет возвращать на фрагмент выбора уровня, после завершения игры (0 - чтобы данный фрагмент не был удален из бекстека)
     private fun retryGame() {
-        requireActivity().supportFragmentManager.popBackStack(
+        /*requireActivity().supportFragmentManager.popBackStack(
             GameFragment.NAME,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
+        )*/
+        //Переделываем на работу с jpnavigator
+        findNavController().popBackStack()
     }
 
-    companion object {
+    /*companion object {
 
-        private const val KEY_GAME_RESULT = "game_result"
+        const val KEY_GAME_RESULT = "game_result"
 
         fun newInstance(gameResult: GameResult): GameFinishedFragment {
             return GameFinishedFragment().apply {
@@ -125,5 +131,5 @@ class GameFinishedFragment : Fragment() {
                 }
             }
         }
-    }
+    }*/
 }

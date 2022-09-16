@@ -2,9 +2,9 @@ package com.example.myapplication.presentation
 
 import android.app.Application
 import android.os.CountDownTimer
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.myapplication.R
 import com.example.myapplication.data.GameRepositoryImpl
 import com.example.myapplication.domain.entity.GameResult
@@ -14,7 +14,10 @@ import com.example.myapplication.domain.entity.Question
 import com.example.myapplication.domain.usecases.GenerateQuestionUseCase
 import com.example.myapplication.domain.usecases.GetGameSettingsUseCase
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel(
+    private val application: Application,
+    private val level: Level)
+    : ViewModel() {
 
     /*Аннотация
     При запуске экрана мы стартуем игру startGame()
@@ -28,14 +31,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     Прогресс с ответами, строка в которой отображается какое количество правильных ответов и какое колво их должно быть мин -  val progressAnswers: LiveData<String>
     И две лайв даты, меняющие цвет бара*/
 
-    private lateinit var level: Level
     private lateinit var gameSettings: GameSettings
 
     private var timer: CountDownTimer? = null
     private val repository = GameRepositoryImpl
 
-    //получаем context
-    private val context = application
 
     private val generateQuestionUseCase = GenerateQuestionUseCase(repository)
     private val getGameSettingsUseCase = GetGameSettingsUseCase(repository)
@@ -80,9 +80,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var countOfQuestions = 0
 
 
-    //при вызове этого метода у нас во вьюмодели будут настройки игры и сам уровень
-    fun startGame(level: Level) {
-        getGameSettings(level)
+    init {
+        startGame()
+    }
+
+    private fun startGame() {
+        getGameSettings()
         startTimer()
         generateQuestion()
         updateProgress()
@@ -96,7 +99,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         /*далее получаем строку с прогрессом по ответам(для этого нужно получить эту строку из
         строковых ресурсов, для этого нужен context во viewmodel ==> наследуемся от androidviewmodel)*/
         _progressAnswers.value = String.format(
-            context.resources.getString(R.string.progress_answers),
+            application.resources.getString(R.string.progress_answers),
             countOfRightAnswers,
             gameSettings.minCountOfRightAnswers
         )
@@ -113,8 +116,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return ((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()
     }
 
-    private fun getGameSettings(level: Level) {
-        this.level = level
+    private fun getGameSettings() {
         this.gameSettings = getGameSettingsUseCase(level)
         //присваем значение secondary бару
         _minPercent.value = gameSettings.minPercentOfRightAnswers
